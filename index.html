@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETHERIS PRO: Rise of Habits</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Tu app de hábitos gamificada. Transforma tu rutina diaria en una aventura épica con Aetheris Pro.">
+    <meta name="theme-color" content="#8b5cf6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Aetheris Pro">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="aetheris_pro.css">
+</head>
+<body>
+    <div class="starfield" id="starfield"></div>
+    
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">AETHERIS PRO</div>
+            <div class="tagline">Cada día eres el héroe de tu propia historia</div>
+            <div class="active-powers" id="activePowers"></div>
+        </div>
+
+        <!-- Player Stats -->
+        <div class="player-stats">
+            <div class="avatar-container">
+                <div class="avatar">
+                    <span id="avatarIcon">⚔️</span>
+                </div>
+                <div class="companion">✨</div>
+            </div>
+            <div class="stats-info">
+                <div class="player-name">Pathforger</div>
+                <div class="level-info">
+                    <span>Nv. <span id="playerLevel">1</span></span>
+                    <span class="streak">🔥 <span id="streakDays">0</span> días</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="xpProgress" style="width: 0%"></div>
+                </div>
+                <div class="xp-text"><span id="currentXP">0</span> / <span id="neededXP">100</span> XP</div>
+                <div class="currency">
+                    <div class="currency-item">
+                        <span>💎</span>
+                        <span id="shards">0</span>
+                    </div>
+                    <div class="currency-item">
+                        <span>🏆</span>
+                        <span id="achievements">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- World View -->
+        <div class="world-view">
+            <div class="aurora"></div>
+            <div class="world-content">
+                <div class="world-icon" id="worldIcon">🏰</div>
+                <div class="world-name" id="worldName">Bosque del Inicio</div>
+                <div class="region-name">Nivel 1-10</div>
+            </div>
+            <div class="companions-container" id="companionsContainer"></div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-menu">
+            <div class="nav-item active" onclick="showSection('paths')">
+                <div class="nav-icon">🛤️</div>
+                <div class="nav-label">Sendas</div>
+            </div>
+            <div class="nav-item" onclick="showSection('calendar')">
+                <div class="nav-icon">📅</div>
+                <div class="nav-label">Calendario</div>
+            </div>
+            <div class="nav-item" onclick="showSection('achievements')">
+                <div class="nav-icon">🏆</div>
+                <div class="nav-label">Logros</div>
+            </div>
+            <div class="nav-item" onclick="showSection('profile')">
+                <div class="nav-icon">👤</div>
+                <div class="nav-label">Perfil</div>
+            </div>
+            <div class="nav-item" onclick="showSection('shop')">
+                <div class="nav-icon">🛒</div>
+                <div class="nav-label">Tienda</div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Paths Section -->
+            <div id="pathsSection">
+                <div class="section-title">
+                    <span>SENDAS DE HOY</span>
+                    <span id="dailyProgress">0/0</span>
+                </div>
+                <div class="category-tabs">
+                    <div class="category-tab active" onclick="filterByCategory('all')">Todas</div>
+                    <div class="category-tab health" onclick="filterByCategory('health')">💪 Salud</div>
+                    <div class="category-tab productivity" onclick="filterByCategory('productivity')">💼 Productividad</div>
+                    <div class="category-tab creativity" onclick="filterByCategory('creativity')">🎨 Creatividad</div>
+                    <div class="category-tab social" onclick="filterByCategory('social')">👥 Social</div>
+                    <div class="category-tab wellness" onclick="filterByCategory('wellness')">🧘 Bienestar</div>
+                </div>
+                <div id="habitsList"></div>
+                <button class="add-habit-btn" onclick="openAddHabitModal()">+ Nueva Senda</button>
+            </div>
+
+            <!-- Calendar Section -->
+            <div id="calendarSection" class="hidden">
+                <div class="section-title">
+                    <span>CALENDARIO</span>
+                    <span id="calendarStats">0% completado</span>
+                </div>
+                <select id="habitSelect" style="width: 100%; padding: 10px; margin-bottom: 15px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 10px; color: white; font-family: 'Lora', serif;">
+                    <option value="">Selecciona un hábito...</option>
+                </select>
+                <div class="calendar-view">
+                    <div class="calendar-header">
+                        <button class="calendar-nav-btn" onclick="changeMonth(-1)">◀</button>
+                        <div class="calendar-month" id="calendarMonth">Enero 2026</div>
+                        <button class="calendar-nav-btn" onclick="changeMonth(1)">▶</button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                </div>
+                <div class="calendar-legend" style="margin-top: 15px; display: flex; gap: 15px; justify-content: center; font-size: 12px;">
+                    <div><span style="display: inline-block; width: 12px; height: 12px; background: #10b981; border-radius: 3px; margin-right: 5px;"></span>Completado</div>
+                    <div><span style="display: inline-block; width: 12px; height: 12px; background: #ef4444; border-radius: 3px; margin-right: 5px;"></span>Fallado</div>
+                    <div><span style="display: inline-block; width: 12px; height: 12px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-right: 5px;"></span>Sin datos</div>
+                </div>
+            </div>
+
+            <!-- Achievements Section -->
+            <div id="achievementsSection" class="hidden">
+                <div class="section-title">
+                    <span>LOGROS</span>
+                    <span id="achievementCount">0/30</span>
+                </div>
+                <div class="category-tabs">
+                    <div class="category-tab active" onclick="filterAchievements('all')">Todos</div>
+                    <div class="category-tab" onclick="filterAchievements('common')">Común</div>
+                    <div class="category-tab" onclick="filterAchievements('rare')">Raro</div>
+                    <div class="category-tab" onclick="filterAchievements('epic')">Épico</div>
+                    <div class="category-tab" onclick="filterAchievements('legendary')">Legendario</div>
+                    <div class="category-tab" onclick="filterAchievements('mythic')">Mítico</div>
+                </div>
+                <div id="achievementsList"></div>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="profileSection" class="hidden">
+                <div class="section-title">ESTADÍSTICAS</div>
+                <div class="stat-card">
+                    <div class="stat-label">Total hábitos cumplidos</div>
+                    <div class="stat-value" id="totalCompleted">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Streak más largo</div>
+                    <div class="stat-value" id="longestStreak">0 días</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Días en Aetheris</div>
+                    <div class="stat-value" id="daysInGame">1</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Nivel alcanzado</div>
+                    <div class="stat-value" id="rankTitle">Novicio</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Shards ganados</div>
+                    <div class="stat-value"><span id="totalShardsEarned">200</span> 💎</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Tiempo total registrado</div>
+                    <div class="stat-value"><span id="totalHoursTracked">0</span> horas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Notas escritas</div>
+                    <div class="stat-value"><span id="totalNotesCount">0</span> 📝</div>
+                </div>
+            </div>
+
+            <!-- Shop Section -->
+            <div id="shopSection" class="hidden">
+                <div class="section-title">
+                    <span>TIENDA</span>
+                    <span>💎 <span id="shopShards">0</span></span>
+                </div>
+                <div class="shop-tabs">
+                    <div class="shop-tab active" onclick="filterShop('companions')">🐾 Compañeros</div>
+                    <div class="shop-tab" onclick="filterShop('themes')">🎨 Temas</div>
+                    <div class="shop-tab" onclick="filterShop('avatars')">👔 Avatares</div>
+                    <div class="shop-tab" onclick="filterShop('power')">🛡️ Power Items</div>
+                </div>
+                <div id="shopItems"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="aetheris_pro.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registrado:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('❌ Error al registrar Service Worker:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
