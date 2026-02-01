@@ -122,9 +122,26 @@ const SHOP_ITEMS_DATA = [
     { id: 401, name: 'Lluvia de Shards', desc: '+50% shards por 24h', icon: '💎', price: 350, type: 'power', category: 'power', uses: 1, duration: 24, effect: 'shard_boost' }
 ];
 
+// ===== VISUAL THEME SWITCHER =====
+function setVisualTheme(themeName) {
+    document.body.setAttribute('data-theme', themeName);
+    localStorage.setItem('aetherisVisualTheme', themeName);
+
+    // Update switcher buttons
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === themeName);
+    });
+}
+
+function restoreVisualTheme() {
+    const saved = localStorage.getItem('aetherisVisualTheme');
+    if (saved) setVisualTheme(saved);
+}
+
 // ===== INITIALIZATION =====
 function init() {
     loadGameState();
+    restoreVisualTheme();
     createStarfield();
     checkDailyReset();
     updateUI();
@@ -488,17 +505,16 @@ function toggleHabit(id, event) {
     // Si ya fue completado hoy, no se permite desmarcar
     if (habit.completedToday) return;
     
+    // Point the calendar at the habit the user just ticked.
+    // Must be set BEFORE completeHabit → renderHabits → updateHabitSelect reads it.
+    gameState.lastCalendarHabitId = String(habit.id);
+
     // Check - open modal if tracking
     if (habit.trackDuration || habit.allowNotes) {
         openHabitCompletionModal(habit, event);
     } else {
         completeHabit(habit, 0, '');
     }
-    
-    saveGameState();
-    renderHabits();
-    updateUI();
-    renderCalendar();
 }
 
 function openHabitCompletionModal(habit, clickEvent) {
@@ -620,7 +636,6 @@ function completeHabit(habit, duration, note) {
     saveGameState();
     renderHabits();
     updateUI();
-    renderCalendar();
 }
 
 function updatePlayerStreak() {
@@ -645,16 +660,34 @@ function addXP(amount) {
 // ===== CALENDAR =====
 function updateHabitSelect() {
     const select = document.getElementById('habitSelect');
+
+    // Remember what was selected before we rebuild
+    const previousValue = select.value || gameState.lastCalendarHabitId || '';
+
     select.innerHTML = '<option value="">Selecciona un hábito...</option>';
-    
+
     gameState.habits.forEach(habit => {
         const option = document.createElement('option');
         option.value = habit.id;
         option.textContent = `${habit.icon} ${habit.name}`;
         select.appendChild(option);
     });
-    
-    select.onchange = () => renderCalendar();
+
+    // Restore previous selection if the habit still exists
+    if (previousValue && gameState.habits.find(h => String(h.id) === String(previousValue))) {
+        select.value = previousValue;
+    }
+
+    // Persist whatever is now selected
+    gameState.lastCalendarHabitId = select.value;
+
+    select.onchange = () => {
+        gameState.lastCalendarHabitId = select.value;
+        renderCalendar();
+    };
+
+    // Always re-render so the grid stays in sync
+    renderCalendar();
 }
 
 function changeMonth(direction) {
@@ -667,8 +700,8 @@ function changeMonth(direction) {
 }
 
 function renderCalendar() {
-    const habitId = parseInt(document.getElementById('habitSelect').value);
-    if (!habitId) {
+    const habitId = Number(document.getElementById('habitSelect').value);
+    if (!habitId || isNaN(habitId)) {
         document.getElementById('calendarGrid').innerHTML = '<p style="text-align: center; opacity: 0.6; padding: 20px; grid-column: 1 / -1;">Selecciona un hábito para ver el calendario</p>';
         return;
     }
@@ -1141,6 +1174,7 @@ function createHabit() {
         completedToday: false,
         createdAt: Date.now(),
         completionHistory: [],
+        completionDates: {},
         isFlexible: isFlexible,
         weeklyGoal: weeklyGoal,
         trackDuration: trackDuration,
@@ -1239,6 +1273,15 @@ function showSection(section) {
     document.getElementById('shopSection').classList.add('hidden');
     
     document.getElementById(section + 'Section').classList.remove('hidden');
+
+    // Calendar tab opened → restore selection and refresh grid
+    if (section === 'calendar') {
+        const select = document.getElementById('habitSelect');
+        if (gameState.lastCalendarHabitId) {
+            select.value = gameState.lastCalendarHabitId;
+        }
+        renderCalendar();
+    }
 }
 
 // ===== START APP =====
