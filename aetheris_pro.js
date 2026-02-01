@@ -193,7 +193,23 @@ function checkDailyReset() {
     if (gameState.lastResetDate !== today) {
         gameState.habits.forEach(habit => {
             if (!habit.completionHistory) habit.completionHistory = [];
+            if (!habit.completionDates) habit.completionDates = {};
             
+            // Mark yesterday as failed in completionDates if it wasn't completed
+            // (only if the habit existed yesterday)
+            if (gameState.lastResetDate) {
+                const yesterday = gameState.lastResetDate; // this is yesterday's toDateString
+                if (habit.completionDates[yesterday] === undefined) {
+                    // Check if habit existed by that date
+                    const habitCreated = new Date(habit.createdAt || Date.now());
+                    const yesterdayDate = new Date(yesterday);
+                    if (yesterdayDate >= habitCreated) {
+                        habit.completionDates[yesterday] = false;
+                    }
+                }
+            }
+            
+            // Legacy array: push a new entry for today
             if (habit.historyDate !== today) {
                 habit.completionHistory.push(false);
                 habit.historyDate = today;
@@ -203,12 +219,12 @@ function checkDailyReset() {
                 }
             }
             
-            if (habit.completedToday) {
-                habit.completedToday = false;
-                habit.todayDuration = 0;
-                habit.todayNote = '';
-            }
+            // Reset today's state
+            habit.completedToday = false;
+            habit.todayDuration = 0;
+            habit.todayNote = '';
             
+            // Streak check
             if (habit.lastCompletedDate) {
                 const lastDate = new Date(habit.lastCompletedDate);
                 const currentDate = new Date(today);
@@ -411,7 +427,8 @@ function renderHabits() {
                     </div>
                 </div>
                 <div class="habit-check ${habit.completedToday ? 'completed' : ''}" 
-                     onclick="toggleHabit(${habit.id}, event)">
+                     onclick="toggleHabit(${habit.id}, event)"
+                     style="${habit.completedToday ? 'cursor: not-allowed;' : ''}">
                     ${habit.completedToday ? '✓' : ''}
                 </div>
             </div>
@@ -468,25 +485,14 @@ function toggleHabit(id, event) {
     const habit = gameState.habits.find(h => h.id === id);
     if (!habit) return;
     
-    if (habit.completedToday) {
-        // Uncheck
-        habit.completedToday = false;
-        habit.todayDuration = 0;
-        habit.todayNote = '';
-        
-        const todayIndex = habit.completionHistory.length - 1;
-        if (todayIndex >= 0) {
-            habit.completionHistory[todayIndex] = false;
-        }
-        
-        updatePlayerStreak();
+    // Si ya fue completado hoy, no se permite desmarcar
+    if (habit.completedToday) return;
+    
+    // Check - open modal if tracking
+    if (habit.trackDuration || habit.allowNotes) {
+        openHabitCompletionModal(habit, event);
     } else {
-        // Check - open modal if tracking
-        if (habit.trackDuration || habit.allowNotes) {
-            openHabitCompletionModal(habit, event);
-        } else {
-            completeHabit(habit, 0, '');
-        }
+        completeHabit(habit, 0, '');
     }
     
     saveGameState();
@@ -537,9 +543,14 @@ function completeHabit(habit, duration, note) {
     const today = new Date().toDateString();
     
     if (!habit.completionHistory) habit.completionHistory = [];
+    if (!habit.completionDates) habit.completionDates = {};
     
     habit.completedToday = true;
     
+    // Write to the date-keyed map (used by calendar)
+    habit.completionDates[today] = true;
+    
+    // Legacy array (kept for weekly rate calculation)
     const todayIndex = habit.completionHistory.length - 1;
     if (todayIndex >= 0 && habit.historyDate === today) {
         habit.completionHistory[todayIndex] = true;
@@ -698,15 +709,29 @@ function renderCalendar() {
     let failedDays = 0;
     
     const habitCreatedDate = new Date(habit.createdAt || Date.now());
+    habitCreatedDate.setHours(0, 0, 0, 0);
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Build a set of completed date strings for O(1) lookup
+    const completedDatesSet = new Set();
+    if (habit.completionDates) {
+        Object.keys(habit.completionDates).forEach(dateStr => {
+            if (habit.completionDates[dateStr] === true) {
+                completedDatesSet.add(dateStr);
+            }
+        });
+    }
     
     for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day);
+        date.setHours(0, 0, 0, 0);
         const dayDiv = document.createElement('div');
         dayDiv.className = 'calendar-day';
         dayDiv.textContent = day;
         
-        const isToday = date.toDateString() === today.toDateString();
+        const dateStr = date.toDateString();
+        const isToday = dateStr === today.toDateString();
         const isBeforeCreation = date < habitCreatedDate;
         const isFuture = date > today;
         
@@ -717,10 +742,9 @@ function renderCalendar() {
         if (isFuture || isBeforeCreation) {
             dayDiv.classList.add('no-data');
         } else {
-            const daysSinceCreation = Math.floor((date - habitCreatedDate) / (1000 * 60 * 60 * 24));
-            
-            if (daysSinceCreation >= 0 && habit.completionHistory && habit.completionHistory[daysSinceCreation] !== undefined) {
-                if (habit.completionHistory[daysSinceCreation]) {
+            // Use the date-keyed map
+            if (habit.completionDates && habit.completionDates[dateStr] !== undefined) {
+                if (habit.completionDates[dateStr] === true) {
                     dayDiv.classList.add('completed');
                     completedDays++;
                 } else {
@@ -728,7 +752,13 @@ function renderCalendar() {
                     failedDays++;
                 }
             } else {
-                dayDiv.classList.add('no-data');
+                // Past day with no record and not today → failed (missed)
+                if (!isToday) {
+                    dayDiv.classList.add('failed');
+                    failedDays++;
+                } else {
+                    dayDiv.classList.add('no-data');
+                }
             }
         }
         
@@ -870,21 +900,43 @@ function renderShop() {
     
     filtered.forEach(item => {
         const owned = item.owned || false;
-        const canBuy = gameState.player.shards >= item.price && !owned;
+        const isConsumable = item.type === 'power';
+        const canAfford = gameState.player.shards >= item.price;
+        
+        // Determine button label and disabled state
+        let btnLabel, btnDisabled;
+        if (isConsumable) {
+            // Power items: always show "Comprar", disabled only if can't afford
+            btnLabel = 'Comprar';
+            btnDisabled = !canAfford;
+        } else if (owned) {
+            // Owned non-consumable: companions show "Comprado" (locked), themes/avatars show "Equipar"
+            if (item.type === 'companion') {
+                btnLabel = 'Comprado';
+                btnDisabled = true;
+            } else {
+                btnLabel = 'Equipar';
+                btnDisabled = false;
+            }
+        } else {
+            // Not owned: show "Comprar", disabled if can't afford
+            btnLabel = 'Comprar';
+            btnDisabled = !canAfford;
+        }
         
         const card = document.createElement('div');
         card.className = 'shop-item';
-        card.style.opacity = owned ? '0.6' : '1';
+        card.style.opacity = (owned && item.type === 'companion') ? '0.6' : '1';
         card.innerHTML = `
             <div class="shop-icon">${item.icon}</div>
             <div class="shop-details">
-                <h3>${item.name} ${owned ? '✓' : ''}</h3>
+                <h3>${item.name} ${(owned && item.type === 'companion') ? '✓' : ''}</h3>
                 <p>${item.desc}</p>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div class="shop-price">💎 ${item.price}</div>
                     <button class="buy-btn" onclick="buyItem(${item.id})" 
-                            ${!canBuy ? 'disabled' : ''}>
-                        ${owned ? 'Comprado' : 'Comprar'}
+                            ${btnDisabled ? 'disabled' : ''}>
+                        ${btnLabel}
                     </button>
                 </div>
             </div>
@@ -899,8 +951,30 @@ function renderShop() {
 
 function buyItem(id) {
     const item = gameState.shopItems.find(i => i.id === id);
-    if (!item || gameState.player.shards < item.price || item.owned) return;
+    if (!item || gameState.player.shards < item.price) return;
     
+    // Power items are consumables: never blocked by "owned", always purchasable
+    if (item.type === 'power') {
+        gameState.player.shards -= item.price;
+        applyItemEffect(item, true);
+        showPurchaseNotification(item);
+        saveGameState();
+        updateUI();
+        renderShop();
+        checkAchievements();
+        return;
+    }
+    
+    // For non-consumable items: if already owned, just re-apply (equip) for free
+    if (item.owned) {
+        applyItemEffect(item, true);
+        showNotification(`${item.icon} ¡${item.name} equipado!`);
+        saveGameState();
+        renderShop();
+        return;
+    }
+    
+    // First-time purchase
     gameState.player.shards -= item.price;
     item.owned = true;
     
@@ -942,20 +1016,27 @@ function applyTheme(theme) {
 function addCompanionToWorld(item) {
     const container = document.getElementById('companionsContainer');
     
+    // If this companion already exists in DOM, skip (will be rebuilt below)
     const existingCompanion = container.querySelector(`[data-companion-id="${item.id}"]`);
     if (existingCompanion) return;
     
+    // Add the new companion element
     const companion = document.createElement('div');
     companion.className = 'world-companion';
     companion.setAttribute('data-companion-id', item.id);
     companion.textContent = item.icon;
     companion.title = item.name;
-    
-    companion.onclick = () => {
-        showCompanionMessage(item);
-    };
-    
+    companion.onclick = () => showCompanionMessage(item);
     container.appendChild(companion);
+    
+    // Re-sort all companions in the container by their numeric ID
+    const allCompanions = Array.from(container.querySelectorAll('.world-companion'));
+    allCompanions.sort((a, b) => {
+        return parseInt(a.getAttribute('data-companion-id')) - parseInt(b.getAttribute('data-companion-id'));
+    });
+    
+    // Re-append in sorted order (moves existing nodes, doesn't duplicate)
+    allCompanions.forEach(el => container.appendChild(el));
 }
 
 function showCompanionMessage(item) {
