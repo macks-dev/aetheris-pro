@@ -196,7 +196,10 @@ function loadGameState() {
         if (!gameState.player.totalShardsEarned) gameState.player.totalShardsEarned = gameState.player.shards;
         if (!gameState.player.totalTimeTracked) gameState.player.totalTimeTracked = 0;
         if (!gameState.player.totalNotesWritten) gameState.player.totalNotesWritten = 0;
-        if (!gameState.currentCalendarMonth) gameState.currentCalendarMonth = new Date();
+        // Re-hydrate: JSON.stringify turns Date → string; we need a real Date back
+        gameState.currentCalendarMonth = gameState.currentCalendarMonth
+            ? new Date(gameState.currentCalendarMonth)
+            : new Date();
     } else {
         gameState.achievements = JSON.parse(JSON.stringify(ACHIEVEMENTS_DATA));
         gameState.shopItems = JSON.parse(JSON.stringify(SHOP_ITEMS_DATA));
@@ -686,11 +689,17 @@ function updateHabitSelect() {
         renderCalendar();
     };
 
-    // Always re-render so the grid stays in sync
-    renderCalendar();
+    // Only re-render the calendar grid if the calendar section is currently visible
+    if (!document.getElementById('calendarSection').classList.contains('hidden')) {
+        renderCalendar();
+    }
 }
 
 function changeMonth(direction) {
+    // Safety: re-hydrate if it lost its Date type (e.g. after JSON round-trip)
+    if (!(gameState.currentCalendarMonth instanceof Date)) {
+        gameState.currentCalendarMonth = new Date(gameState.currentCalendarMonth || Date.now());
+    }
     gameState.currentCalendarMonth = new Date(
         gameState.currentCalendarMonth.getFullYear(),
         gameState.currentCalendarMonth.getMonth() + direction,
@@ -1286,3 +1295,4 @@ function showSection(section) {
 
 // ===== START APP =====
 window.addEventListener('DOMContentLoaded', init);
+
