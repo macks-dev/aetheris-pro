@@ -1,4 +1,14 @@
+/* ===== SHARED DEFAULTS (always present) ===== */
 :root {
+    --health: #10b981;
+    --productivity: #3b82f6;
+    --creativity: #a855f7;
+    --social: #f59e0b;
+    --wellness: #06b6d4;
+}
+
+/* ===== FANTASY (default) ===== */
+[data-theme="fantasy"] {
     --night-deep: #0a0e1a;
     --night-blue: #1a2332;
     --mystic-purple: #8b5cf6;
@@ -7,13 +17,63 @@
     --flame: #fb923c;
     --silver: #cbd5e1;
     --shadow: rgba(0, 0, 0, 0.6);
-    
-    /* Category Colors */
-    --health: #10b981;
-    --productivity: #3b82f6;
-    --creativity: #a855f7;
-    --social: #f59e0b;
-    --wellness: #06b6d4;
+}
+
+/* ===== CYBERPUNK ===== */
+[data-theme="cyberpunk"] {
+    --night-deep: #0a0a0f;
+    --night-blue: #12121a;
+    --mystic-purple: #e91e8c;
+    --gold: #00f0ff;
+    --emerald: #39ff14;
+    --flame: #ff2d75;
+    --silver: #b0b8c4;
+    --shadow: rgba(0, 0, 0, 0.7);
+}
+
+/* ===== MINIMAL ===== */
+[data-theme="minimal"] {
+    --night-deep: #f5f5f7;
+    --night-blue: #ffffff;
+    --mystic-purple: #6c63ff;
+    --gold: #1a1a2e;
+    --emerald: #6c63ff;
+    --flame: #6c63ff;
+    --silver: #6b7280;
+    --shadow: rgba(0, 0, 0, 0.08);
+}
+
+/* ===== THEME SWITCHER ===== */
+.theme-switcher {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 0 4px;
+}
+.theme-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    background: rgba(255,255,255,0.08);
+}
+.theme-btn:hover { transform: scale(1.15); }
+.theme-btn.active {
+    border-color: var(--gold);
+    box-shadow: 0 0 12px rgba(255,255,255,0.25);
+}
+[data-theme="minimal"] .theme-btn {
+    background: rgba(0,0,0,0.05);
+}
+[data-theme="minimal"] .theme-btn.active {
+    border-color: var(--mystic-purple);
+    box-shadow: 0 0 8px rgba(108,99,255,0.3);
 }
 
 * {
@@ -656,7 +716,13 @@ body {
     border: 2px solid var(--gold);
 }
 
-/* Add Habit Button */
+/* today + completed: keep green fill, keep gold border */
+.calendar-day.today.completed {
+    background: var(--emerald);
+    color: white;
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
 .add-habit-btn {
     width: 100%;
     padding: 15px;
@@ -1096,3 +1162,685 @@ body {
         max-width: 100%;
     }
 }
+
+
+/* ============================================================
+   CYBERPUNK THEME OVERRIDES
+   ============================================================ */
+
+[data-theme="cyberpunk"] body {
+    background: linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #1a0a1a 100%);
+}
+
+[data-theme="cyberpunk"] .starfield .star {
+    background: #00f0ff;
+    box-shadow: 0 0 4px #00f0ff;
+}
+
+[data-theme="cyberpunk"] .app-container {
+    background: rgba(18, 18, 26, 0.92);
+    box-shadow: 0 0 40px rgba(233, 30, 140, 0.25), 0 0 80px rgba(0, 240, 255, 0.1);
+    border-left: 1px solid rgba(233,30,140,0.15);
+    border-right: 1px solid rgba(233,30,140,0.15);
+}
+
+/* Header */
+[data-theme="cyberpunk"] .header {
+    background: linear-gradient(180deg, rgba(233,30,140,0.18) 0%, transparent 100%);
+    border-bottom: 1px solid rgba(0,240,255,0.25);
+    position: relative;
+}
+[data-theme="cyberpunk"] .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #00f0ff, #e91e8c, #00f0ff, transparent);
+}
+[data-theme="cyberpunk"] .logo {
+    background: linear-gradient(135deg, #00f0ff 0%, #e91e8c 50%, #39ff14 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    letter-spacing: 6px;
+    font-size: 24px;
+}
+[data-theme="cyberpunk"] .logo { animation: cyberpunkGlow 2s ease-in-out infinite; }
+@keyframes cyberpunkGlow {
+    0%, 100% { filter: drop-shadow(0 0 8px rgba(0,240,255,0.6)); }
+    50%      { filter: drop-shadow(0 0 18px rgba(233,30,140,0.8)); }
+}
+[data-theme="cyberpunk"] .tagline {
+    color: #00f0ff;
+    opacity: 0.7;
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Power indicators */
+[data-theme="cyberpunk"] .power-indicator {
+    background: rgba(233,30,140,0.15);
+    border-color: #e91e8c;
+    box-shadow: 0 0 6px rgba(233,30,140,0.3);
+}
+
+/* Player stats */
+[data-theme="cyberpunk"] .player-stats {
+    background: linear-gradient(90deg, rgba(233,30,140,0.08) 0%, transparent 100%);
+}
+[data-theme="cyberpunk"] .avatar {
+    background: linear-gradient(135deg, #e91e8c, #00f0ff);
+    box-shadow: 0 0 24px rgba(233,30,140,0.5), 0 0 48px rgba(0,240,255,0.2);
+}
+[data-theme="cyberpunk"] .avatar { animation: none; }
+[data-theme="cyberpunk"] .player-name {
+    color: #00f0ff;
+    text-shadow: 0 0 10px rgba(0,240,255,0.5);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 15px;
+}
+[data-theme="cyberpunk"] .progress-fill {
+    background: linear-gradient(90deg, #e91e8c, #00f0ff);
+    box-shadow: 0 0 8px rgba(0,240,255,0.6);
+}
+[data-theme="cyberpunk"] .streak { color: #39ff14; text-shadow: 0 0 6px rgba(57,255,20,0.4); }
+
+/* World view */
+[data-theme="cyberpunk"] .world-view {
+    background: linear-gradient(180deg, #0a0a0f 0%, #1a0a1a 50%, #12121a 100%);
+    border-top: 1px solid rgba(0,240,255,0.2);
+    border-bottom: 1px solid rgba(0,240,255,0.2);
+}
+[data-theme="cyberpunk"] .aurora {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(233,30,140,0.25) 25%,
+        rgba(0,240,255,0.25) 50%,
+        rgba(57,255,20,0.2) 75%,
+        transparent 100%);
+}
+[data-theme="cyberpunk"] .world-icon {
+    filter: drop-shadow(0 0 20px rgba(233,30,140,0.7));
+    animation: none;
+}
+[data-theme="cyberpunk"] .world-name {
+    color: #00f0ff;
+    text-shadow: 0 0 14px rgba(0,240,255,0.6);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-size: 16px;
+}
+[data-theme="cyberpunk"] .region-name { color: #e91e8c; letter-spacing: 1px; }
+
+/* Companions */
+[data-theme="cyberpunk"] .world-companion {
+    filter: drop-shadow(0 0 8px rgba(233,30,140,0.5));
+}
+[data-theme="cyberpunk"] .world-companion:hover {
+    filter: drop-shadow(0 0 20px rgba(0,240,255,0.9)) !important;
+}
+
+/* Nav */
+[data-theme="cyberpunk"] .nav-menu {
+    background: rgba(233,30,140,0.06);
+    border-top: 1px solid rgba(0,240,255,0.12);
+    border-bottom: 1px solid rgba(0,240,255,0.12);
+}
+[data-theme="cyberpunk"] .nav-item.active {
+    background: rgba(233,30,140,0.2);
+    box-shadow: 0 0 10px rgba(233,30,140,0.3);
+}
+[data-theme="cyberpunk"] .nav-item:hover { background: rgba(0,240,255,0.1); }
+[data-theme="cyberpunk"] .nav-label { color: #b0b8c4; letter-spacing: 1px; }
+
+/* Section titles */
+[data-theme="cyberpunk"] .section-title {
+    color: #00f0ff;
+    border-bottom-color: rgba(233,30,140,0.4);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+/* Category tabs */
+[data-theme="cyberpunk"] .category-tab {
+    background: rgba(18,18,26,0.8);
+    border-color: rgba(233,30,140,0.3);
+}
+[data-theme="cyberpunk"] .category-tab.active {
+    border-color: #00f0ff;
+    background: rgba(0,240,255,0.1);
+    box-shadow: 0 0 8px rgba(0,240,255,0.2);
+}
+
+/* Habit cards */
+[data-theme="cyberpunk"] .habit-card {
+    background: linear-gradient(135deg, rgba(18,18,26,0.9) 0%, rgba(26,10,26,0.9) 100%);
+    border-color: rgba(233,30,140,0.35);
+    transition: all 0.2s ease;
+}
+[data-theme="cyberpunk"] .habit-card:hover {
+    border-color: #00f0ff;
+    box-shadow: 0 0 16px rgba(0,240,255,0.2), inset 0 0 30px rgba(233,30,140,0.05);
+}
+[data-theme="cyberpunk"] .habit-card.health   { border-color: rgba(57,255,20,0.4); }
+[data-theme="cyberpunk"] .habit-card.productivity { border-color: rgba(0,240,255,0.4); }
+[data-theme="cyberpunk"] .habit-card.creativity    { border-color: rgba(233,30,140,0.4); }
+[data-theme="cyberpunk"] .habit-card.social        { border-color: rgba(245,158,11,0.4); }
+[data-theme="cyberpunk"] .habit-card.wellness      { border-color: rgba(57,255,20,0.4); }
+[data-theme="cyberpunk"] .habit-icon {
+    background: rgba(233,30,140,0.15);
+    border: 1px solid rgba(233,30,140,0.3);
+}
+[data-theme="cyberpunk"] .habit-name { color: #00f0ff; font-family: 'Courier New', monospace; }
+[data-theme="cyberpunk"] .habit-check {
+    border-color: #e91e8c;
+    box-shadow: 0 0 6px rgba(233,30,140,0.3);
+}
+[data-theme="cyberpunk"] .habit-check:hover { background: rgba(233,30,140,0.2); }
+[data-theme="cyberpunk"] .habit-check.completed {
+    background: linear-gradient(135deg, #e91e8c, #00f0ff);
+    border-color: #00f0ff;
+    box-shadow: 0 0 14px rgba(0,240,255,0.5);
+}
+[data-theme="cyberpunk"] .progress-fill-small {
+    background: linear-gradient(90deg, #e91e8c, #00f0ff);
+}
+
+/* Add habit button */
+[data-theme="cyberpunk"] .add-habit-btn {
+    background: linear-gradient(135deg, #e91e8c, #00f0ff);
+    box-shadow: 0 4px 20px rgba(233,30,140,0.4);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+}
+[data-theme="cyberpunk"] .add-habit-btn:hover {
+    box-shadow: 0 6px 30px rgba(233,30,140,0.6), 0 0 20px rgba(0,240,255,0.3);
+}
+
+/* Calendar */
+[data-theme="cyberpunk"] .calendar-view {
+    background: rgba(18,18,26,0.85);
+    border-color: rgba(0,240,255,0.2);
+}
+[data-theme="cyberpunk"] .calendar-month { color: #00f0ff; font-family: 'Courier New', monospace; letter-spacing: 2px; }
+[data-theme="cyberpunk"] .calendar-nav-btn {
+    background: rgba(233,30,140,0.15);
+    border: 1px solid rgba(233,30,140,0.3);
+    color: #00f0ff;
+}
+[data-theme="cyberpunk"] .calendar-nav-btn:hover { background: rgba(233,30,140,0.3); }
+[data-theme="cyberpunk"] .calendar-day.completed {
+    background: #39ff14;
+    color: #0a0a0f;
+    box-shadow: 0 0 8px rgba(57,255,20,0.5);
+}
+[data-theme="cyberpunk"] .calendar-day.failed {
+    background: rgba(233,30,140,0.35);
+    color: #e91e8c;
+}
+[data-theme="cyberpunk"] .calendar-day.today { border-color: #00f0ff; box-shadow: 0 0 8px rgba(0,240,255,0.4); }
+[data-theme="cyberpunk"] .calendar-day.today.completed {
+    background: #39ff14;
+    color: #0a0a0f;
+    border-color: #00f0ff;
+    box-shadow: 0 0 10px rgba(57,255,20,0.6), 0 0 6px rgba(0,240,255,0.4);
+}
+[data-theme="cyberpunk"] .calendar-day.no-data { background: rgba(18,18,26,0.6); }
+[data-theme="cyberpunk"] #habitSelect {
+    background: rgba(18,18,26,0.85) !important;
+    border-color: rgba(233,30,140,0.3) !important;
+    color: #b0b8c4 !important;
+}
+
+/* Achievements */
+[data-theme="cyberpunk"] .achievement-card {
+    background: linear-gradient(135deg, rgba(18,18,26,0.9), rgba(26,10,26,0.9));
+    border-color: rgba(233,30,140,0.3);
+}
+[data-theme="cyberpunk"] .achievement-card.locked { border-color: rgba(233,30,140,0.15); }
+[data-theme="cyberpunk"] .achievement-icon { background: rgba(233,30,140,0.12); border: 1px solid rgba(233,30,140,0.25); }
+[data-theme="cyberpunk"] .achievement-info h3 { color: #00f0ff; font-family: 'Courier New', monospace; font-size: 14px; }
+[data-theme="cyberpunk"] .achievement-reward { color: #39ff14; }
+[data-theme="cyberpunk"] .rarity-badge.common { background: #555; }
+[data-theme="cyberpunk"] .rarity-badge.rare { background: #00f0ff; color: #0a0a0f; }
+[data-theme="cyberpunk"] .rarity-badge.epic { background: #e91e8c; }
+[data-theme="cyberpunk"] .rarity-badge.legendary { background: #39ff14; color: #0a0a0f; box-shadow: 0 0 8px #39ff14; }
+
+/* Shop */
+[data-theme="cyberpunk"] .shop-tabs { gap: 8px; }
+[data-theme="cyberpunk"] .shop-tab {
+    background: rgba(18,18,26,0.8);
+    border-color: rgba(233,30,140,0.3);
+    color: #b0b8c4;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+[data-theme="cyberpunk"] .shop-tab.active {
+    border-color: #00f0ff;
+    background: rgba(0,240,255,0.1);
+    color: #00f0ff;
+}
+[data-theme="cyberpunk"] .shop-item {
+    background: linear-gradient(135deg, rgba(18,18,26,0.9), rgba(26,10,26,0.85));
+    border-color: rgba(233,30,140,0.3);
+}
+[data-theme="cyberpunk"] .shop-icon { background: rgba(233,30,140,0.12); border: 1px solid rgba(233,30,140,0.25); }
+[data-theme="cyberpunk"] .shop-details h3 { color: #00f0ff; font-family: 'Courier New', monospace; font-size: 14px; }
+[data-theme="cyberpunk"] .shop-price { color: #39ff14; }
+[data-theme="cyberpunk"] .buy-btn {
+    background: linear-gradient(135deg, #e91e8c, #00f0ff);
+    box-shadow: 0 2px 10px rgba(233,30,140,0.3);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+[data-theme="cyberpunk"] .buy-btn:hover { box-shadow: 0 4px 18px rgba(233,30,140,0.5); }
+[data-theme="cyberpunk"] .buy-btn:disabled { opacity: 0.3; box-shadow: none; }
+
+/* Stats */
+[data-theme="cyberpunk"] .stat-card {
+    background: rgba(18,18,26,0.85);
+    border-color: rgba(233,30,140,0.25);
+}
+[data-theme="cyberpunk"] .stat-value { color: #00f0ff; font-family: 'Courier New', monospace; text-shadow: 0 0 8px rgba(0,240,255,0.4); }
+
+/* Modal */
+[data-theme="cyberpunk"] .modal {
+    background: linear-gradient(135deg, #12121a 0%, #1a0a1a 100%);
+    border-color: #e91e8c;
+    box-shadow: 0 0 40px rgba(233,30,140,0.4), 0 0 80px rgba(0,240,255,0.1);
+}
+[data-theme="cyberpunk"] .modal h2 { color: #00f0ff; font-family: 'Courier New', monospace; letter-spacing: 2px; }
+[data-theme="cyberpunk"] .modal input,
+[data-theme="cyberpunk"] .modal select {
+    background: rgba(18,18,26,0.85) !important;
+    border-color: rgba(233,30,140,0.35) !important;
+}
+[data-theme="cyberpunk"] .modal-btn.primary {
+    background: linear-gradient(135deg, #e91e8c, #00f0ff);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+[data-theme="cyberpunk"] .modal-btn.secondary { background: rgba(233,30,140,0.12); border: 1px solid rgba(233,30,140,0.3); }
+[data-theme="cyberpunk"] .icon-option:hover { background: rgba(233,30,140,0.2); }
+[data-theme="cyberpunk"] .icon-option.selected { border-color: #00f0ff; background: rgba(0,240,255,0.15); }
+
+/* Notification */
+[data-theme="cyberpunk"] .xp-notification {
+    background: linear-gradient(135deg, #e91e8c, #00f0ff);
+    box-shadow: 0 0 40px rgba(233,30,140,0.5), 0 0 60px rgba(0,240,255,0.2);
+    font-family: 'Courier New', monospace;
+}
+
+/* Scanline overlay effect */
+[data-theme="cyberpunk"] .app-container::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 9998;
+}
+
+
+/* ============================================================
+   MINIMAL THEME OVERRIDES
+   ============================================================ */
+
+[data-theme="minimal"] body {
+    background: #f0f0f5;
+}
+
+/* Hide starfield completely */
+[data-theme="minimal"] .starfield { display: none; }
+
+[data-theme="minimal"] .app-container {
+    background: #ffffff;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.06);
+    border-radius: 0;
+}
+
+/* Header — super clean */
+[data-theme="minimal"] .header {
+    background: #ffffff;
+    border-bottom: 1px solid #e8e8ec;
+    padding: 18px 20px 12px;
+}
+[data-theme="minimal"] .logo {
+    background: linear-gradient(135deg, #6c63ff, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 20px;
+    letter-spacing: 2px;
+    animation: none;
+    filter: none;
+}
+[data-theme="minimal"] .tagline {
+    color: #9ca3af;
+    font-size: 11px;
+    font-style: normal;
+}
+
+/* Power indicators */
+[data-theme="minimal"] .power-indicator {
+    background: rgba(108,99,255,0.08);
+    border-color: rgba(108,99,255,0.25);
+    color: #6c63ff;
+    animation: none;
+}
+
+/* Player stats */
+[data-theme="minimal"] .player-stats {
+    background: #f8f8fc;
+    border-bottom: 1px solid #eee;
+    padding: 16px 20px;
+}
+[data-theme="minimal"] .avatar {
+    background: linear-gradient(135deg, #6c63ff, #a78bfa);
+    box-shadow: 0 4px 12px rgba(108,99,255,0.25);
+    animation: none;
+    width: 64px; height: 64px;
+    font-size: 30px;
+}
+[data-theme="minimal"] .avatar-container { width: 64px; height: 64px; }
+[data-theme="minimal"] .companion { font-size: 18px; bottom: -2px; right: -2px; animation: none; }
+[data-theme="minimal"] .player-name {
+    color: #1a1a2e;
+    font-size: 16px;
+    font-weight: 600;
+}
+[data-theme="minimal"] .level-info { color: #6b7280; font-size: 13px; }
+[data-theme="minimal"] .streak { color: #6c63ff; font-size: 13px; }
+[data-theme="minimal"] .progress-bar { background: #eee; height: 6px; }
+[data-theme="minimal"] .progress-fill {
+    background: linear-gradient(90deg, #6c63ff, #a78bfa);
+    box-shadow: none;
+}
+[data-theme="minimal"] .xp-text { color: #9ca3af; }
+[data-theme="minimal"] .currency { color: #6b7280; font-size: 13px; }
+
+/* World view — becomes a soft colored band */
+[data-theme="minimal"] .world-view {
+    background: linear-gradient(135deg, #ede9fe, #e0e7ff);
+    height: 140px;
+    border-top: none;
+    border-bottom: 1px solid #e8e8ec;
+}
+[data-theme="minimal"] .aurora { display: none; }
+[data-theme="minimal"] .world-content { bottom: 16px; }
+[data-theme="minimal"] .world-icon {
+    font-size: 48px;
+    filter: none;
+    animation: none;
+    margin-bottom: 4px;
+}
+[data-theme="minimal"] .world-name {
+    color: #1a1a2e;
+    font-size: 16px;
+    text-shadow: none;
+    font-weight: 600;
+}
+[data-theme="minimal"] .region-name { color: #6c63ff; font-size: 11px; }
+
+/* Companions — smaller, no glow */
+[data-theme="minimal"] .companions-container { bottom: 38px; gap: 6px; }
+[data-theme="minimal"] .world-companion {
+    font-size: 22px;
+    width: 32px; height: 32px;
+    filter: none;
+    animation: none;
+}
+[data-theme="minimal"] .world-companion:hover {
+    filter: none !important;
+    transform: scale(1.2) !important;
+}
+
+/* Nav — flat pill tabs */
+[data-theme="minimal"] .nav-menu {
+    background: #ffffff;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 12px 16px;
+}
+[data-theme="minimal"] .nav-item { padding: 8px 10px; border-radius: 8px; }
+[data-theme="minimal"] .nav-item:hover { background: #f3f0ff; transform: none; }
+[data-theme="minimal"] .nav-item.active { background: #ede9fe; }
+[data-theme="minimal"] .nav-icon { font-size: 20px; }
+[data-theme="minimal"] .nav-label { color: #6b7280; font-size: 9px; letter-spacing: 0; text-transform: none; }
+
+/* Content */
+[data-theme="minimal"] .content { padding: 20px; background: #ffffff; }
+
+/* Section title */
+[data-theme="minimal"] .section-title {
+    color: #1a1a2e;
+    font-size: 16px;
+    border-bottom-color: #eee;
+    font-weight: 600;
+}
+
+/* Category tabs */
+[data-theme="minimal"] .category-tab {
+    background: #f3f4f6;
+    border-color: transparent;
+    color: #6b7280;
+    border-radius: 16px;
+    font-size: 12px;
+    padding: 6px 14px;
+}
+[data-theme="minimal"] .category-tab.active {
+    border-color: transparent;
+    background: #ede9fe;
+    color: #6c63ff;
+    font-weight: 600;
+}
+[data-theme="minimal"] .category-tab.health.active     { background: #d1fae5; color: #059669; }
+[data-theme="minimal"] .category-tab.productivity.active { background: #dbeafe; color: #2563eb; }
+[data-theme="minimal"] .category-tab.creativity.active   { background: #f3e8ff; color: #9333ea; }
+[data-theme="minimal"] .category-tab.social.active       { background: #fef3c7; color: #d97706; }
+[data-theme="minimal"] .category-tab.wellness.active     { background: #cffafe; color: #0891b2; }
+
+/* Habit cards */
+[data-theme="minimal"] .habit-card {
+    background: #ffffff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s;
+}
+[data-theme="minimal"] .habit-card:hover {
+    transform: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-color: #ddd;
+}
+[data-theme="minimal"] .habit-card.health         { border-color: #a7f3d0; }
+[data-theme="minimal"] .habit-card.productivity   { border-color: #93c5fd; }
+[data-theme="minimal"] .habit-card.creativity     { border-color: #c4b5fd; }
+[data-theme="minimal"] .habit-card.social         { border-color: #fcd34d; }
+[data-theme="minimal"] .habit-card.wellness       { border-color: #67e8f9; }
+[data-theme="minimal"] .habit-icon {
+    background: #f3f0ff;
+    border: none;
+}
+[data-theme="minimal"] .habit-name { color: #1a1a2e; }
+[data-theme="minimal"] .habit-meta { color: #9ca3af; }
+[data-theme="minimal"] .habit-check {
+    border-color: #d1d5db;
+    box-shadow: none;
+    width: 34px; height: 34px;
+}
+[data-theme="minimal"] .habit-check:hover { background: #f3f0ff; border-color: #6c63ff; }
+[data-theme="minimal"] .habit-check.completed {
+    background: linear-gradient(135deg, #6c63ff, #a78bfa);
+    border-color: #6c63ff;
+    box-shadow: 0 2px 8px rgba(108,99,255,0.3);
+    animation: none;
+}
+[data-theme="minimal"] .progress-bar-small { background: #f0f0f5; height: 4px; }
+[data-theme="minimal"] .progress-fill-small { background: linear-gradient(90deg, #6c63ff, #a78bfa); }
+
+/* Add habit button */
+[data-theme="minimal"] .add-habit-btn {
+    background: linear-gradient(135deg, #6c63ff, #a78bfa);
+    box-shadow: 0 2px 10px rgba(108,99,255,0.3);
+    border-radius: 10px;
+    font-size: 14px;
+    color: white;
+}
+[data-theme="minimal"] .add-habit-btn:hover {
+    box-shadow: 0 4px 16px rgba(108,99,255,0.4);
+    transform: translateY(-1px);
+}
+
+/* Calendar */
+[data-theme="minimal"] .calendar-view {
+    background: #ffffff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+[data-theme="minimal"] .calendar-month { color: #1a1a2e; font-size: 16px; font-weight: 600; }
+[data-theme="minimal"] .calendar-nav-btn {
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+    border-radius: 6px;
+}
+[data-theme="minimal"] .calendar-nav-btn:hover { background: #ede9fe; border-color: #c4b5fd; color: #6c63ff; }
+[data-theme="minimal"] .calendar-day-header { color: #9ca3af; }
+[data-theme="minimal"] .calendar-day { color: #374151; border-radius: 6px; }
+[data-theme="minimal"] .calendar-day:hover { background: #f3f0ff; }
+[data-theme="minimal"] .calendar-day.completed { background: #6c63ff; color: white; box-shadow: none; }
+[data-theme="minimal"] .calendar-day.failed { background: #fee2e2; color: #ef4444; }
+[data-theme="minimal"] .calendar-day.today { border-color: #6c63ff; }
+[data-theme="minimal"] .calendar-day.today.completed {
+    background: #6c63ff;
+    color: white;
+    border-color: #6c63ff;
+    box-shadow: 0 0 6px rgba(108,99,255,0.4);
+}
+[data-theme="minimal"] .calendar-day.no-data { background: #f9fafb; color: #d1d5db; opacity: 1; }
+[data-theme="minimal"] #habitSelect {
+    background: #ffffff !important;
+    border-color: #e5e7eb !important;
+    color: #374151 !important;
+    border-radius: 10px !important;
+}
+
+/* Achievements */
+[data-theme="minimal"] .achievement-card {
+    background: #ffffff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+[data-theme="minimal"] .achievement-card.locked { opacity: 0.55; background: #fafafa; }
+[data-theme="minimal"] .achievement-card::before { display: none; }
+[data-theme="minimal"] .achievement-icon { background: #f3f0ff; border: none; }
+[data-theme="minimal"] .achievement-icon.locked { filter: grayscale(100%); background: #f3f4f6; }
+[data-theme="minimal"] .achievement-info h3 { color: #1a1a2e; font-size: 14px; }
+[data-theme="minimal"] .achievement-info p { color: #9ca3af; }
+[data-theme="minimal"] .achievement-reward { color: #6c63ff; }
+[data-theme="minimal"] .achievement-progress { background: #f0f0f5; }
+[data-theme="minimal"] .achievement-progress-fill { background: #6c63ff !important; box-shadow: none !important; }
+[data-theme="minimal"] .achievement-progress-text { color: #9ca3af; }
+[data-theme="minimal"] .rarity-badge.common     { background: #e5e7eb; color: #6b7280; }
+[data-theme="minimal"] .rarity-badge.rare       { background: #dbeafe; color: #2563eb; }
+[data-theme="minimal"] .rarity-badge.epic       { background: #ede9fe; color: #7c3aed; }
+[data-theme="minimal"] .rarity-badge.legendary  { background: #fef3c7; color: #d97706; box-shadow: none; }
+[data-theme="minimal"] .rarity-badge.mythic     { background: linear-gradient(90deg, #fee2e2, #fef3c7, #d1fae5); color: #374151; animation: none; }
+
+/* Shop */
+[data-theme="minimal"] .shop-tab {
+    background: #f3f4f6;
+    border-color: transparent;
+    color: #6b7280;
+    border-radius: 16px;
+    font-size: 12px;
+    padding: 8px 16px;
+}
+[data-theme="minimal"] .shop-tab.active { background: #ede9fe; color: #6c63ff; border-color: transparent; }
+[data-theme="minimal"] .shop-item {
+    background: #ffffff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+[data-theme="minimal"] .shop-icon { background: #f3f0ff; border: none; }
+[data-theme="minimal"] .shop-details h3 { color: #1a1a2e; font-size: 15px; }
+[data-theme="minimal"] .shop-details p { color: #9ca3af; }
+[data-theme="minimal"] .shop-price { color: #6c63ff; }
+[data-theme="minimal"] .buy-btn {
+    background: linear-gradient(135deg, #6c63ff, #a78bfa);
+    box-shadow: 0 2px 8px rgba(108,99,255,0.25);
+    border-radius: 8px;
+    font-size: 13px;
+}
+[data-theme="minimal"] .buy-btn:hover { box-shadow: 0 3px 12px rgba(108,99,255,0.35); }
+[data-theme="minimal"] .buy-btn:disabled { opacity: 0.4; box-shadow: none; }
+
+/* Stats */
+[data-theme="minimal"] .stat-card {
+    background: #f8f8fc;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: none;
+}
+[data-theme="minimal"] .stat-label { color: #9ca3af; }
+[data-theme="minimal"] .stat-value { color: #1a1a2e; font-size: 28px; }
+
+/* Modal */
+[data-theme="minimal"] .modal-overlay { background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); }
+[data-theme="minimal"] .modal {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+[data-theme="minimal"] .modal h2 { color: #1a1a2e; font-size: 20px; }
+[data-theme="minimal"] .modal input,
+[data-theme="minimal"] .modal select {
+    background: #f9fafb !important;
+    border-color: #e5e7eb !important;
+    color: #374151 !important;
+    border-radius: 10px !important;
+}
+[data-theme="minimal"] .modal input::placeholder { color: #9ca3af; }
+[data-theme="minimal"] .modal-btn.primary {
+    background: linear-gradient(135deg, #6c63ff, #a78bfa);
+    color: white;
+}
+[data-theme="minimal"] .modal-btn.secondary {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+[data-theme="minimal"] .modal-btn:hover { transform: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+[data-theme="minimal"] .icon-option:hover { background: #ede9fe; }
+[data-theme="minimal"] .icon-option.selected { border-color: #6c63ff; background: #ede9fe; }
+
+/* Notification */
+[data-theme="minimal"] .xp-notification {
+    background: linear-gradient(135deg, #6c63ff, #a78bfa);
+    box-shadow: 0 8px 32px rgba(108,99,255,0.3);
+    border-radius: 14px;
+    color: white;
+}
+
+/* Particle — softer */
+[data-theme="minimal"] .particle { opacity: 0.6; }
