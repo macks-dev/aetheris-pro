@@ -21,7 +21,7 @@
     <!-- Styles -->
     <link rel="stylesheet" href="aetheris_pro.css">
 </head>
-<body>
+<body data-theme="fantasy">
     <div class="starfield" id="starfield"></div>
     
     <div class="app-container">
@@ -29,6 +29,11 @@
         <div class="header">
             <div class="logo">AETHERIS PRO</div>
             <div class="tagline">Cada día eres el héroe de tu propia historia</div>
+            <div class="theme-switcher" id="themeSwitcher">
+                <div class="theme-btn active" data-theme="fantasy" onclick="setVisualTheme('fantasy')" title="Fantasía">⚔️</div>
+                <div class="theme-btn" data-theme="cyberpunk" onclick="setVisualTheme('cyberpunk')" title="Cyberpunk">🤖</div>
+                <div class="theme-btn" data-theme="minimal" onclick="setVisualTheme('minimal')" title="Minimalista">◯</div>
+            </div>
             <div class="active-powers" id="activePowers"></div>
         </div>
 
@@ -227,3 +232,4 @@
     </script>
 </body>
 </html>
+
