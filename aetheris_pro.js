@@ -127,6 +127,14 @@ function setVisualTheme(themeName) {
     document.body.setAttribute('data-theme', themeName);
     localStorage.setItem('aetherisVisualTheme', themeName);
 
+    // Clear any inline CSS-var overrides that a shop theme may have set;
+    // otherwise those inline styles permanently beat the [data-theme] rules.
+    ['--mystic-purple','--emerald','--night-deep','--night-blue'].forEach(v =>
+        document.documentElement.style.removeProperty(v)
+    );
+    // Shop theme is no longer active once you pick a visual theme
+    gameState.player.activeTheme = 'default';
+
     // Update switcher buttons
     document.querySelectorAll('.theme-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.theme === themeName);
@@ -136,6 +144,13 @@ function setVisualTheme(themeName) {
 function restoreVisualTheme() {
     const saved = localStorage.getItem('aetherisVisualTheme');
     if (saved) setVisualTheme(saved);
+
+    // If a shop theme was active before the reload, re-apply its inline vars
+    // (setVisualTheme above cleared them; we need them back on top of the base).
+    if (gameState.player.activeTheme && gameState.player.activeTheme !== 'default') {
+        const shopTheme = gameState.shopItems.find(i => i.id === gameState.player.activeTheme && i.type === 'theme');
+        if (shopTheme) applyTheme(shopTheme);
+    }
 }
 
 // ===== INITIALIZATION =====
@@ -1045,6 +1060,15 @@ function applyItemEffect(item, isNewPurchase = false) {
 function applyTheme(theme) {
     gameState.player.activeTheme = theme.id;
     
+    // Shop themes are colour-palette overlays designed for the fantasy base.
+    // Force data-theme back to fantasy so the inline vars layer correctly,
+    // and update the switcher buttons to stay in sync.
+    document.body.setAttribute('data-theme', 'fantasy');
+    localStorage.setItem('aetherisVisualTheme', 'fantasy');
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === 'fantasy');
+    });
+
     if (theme.colors) {
         document.documentElement.style.setProperty('--mystic-purple', theme.colors.primary);
         document.documentElement.style.setProperty('--emerald', theme.colors.secondary);
@@ -1292,6 +1316,9 @@ function showSection(section) {
         renderCalendar();
     }
 }
+
+// ===== START APP =====
+window.addEventListener('DOMContentLoaded', init);
 
 // ===== START APP =====
 window.addEventListener('DOMContentLoaded', init);
